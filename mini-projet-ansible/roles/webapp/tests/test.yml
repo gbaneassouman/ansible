@@ -1,0 +1,9 @@
+---
+- name: Test Website
+  hosts: prod
+  remote_user: vagrant
+  tasks:
+  - name: Website Test
+    uri:
+      url: http://192.168.56.12
+      status_code: 200
