@@ -1,0 +1,45 @@
+---
+- name: Install portsentry
+  apt:
+    name: portsentry
+    cache_valid_time: 3600
+    state: present
+  tags:
+    - install
+    - portsentry
+    - portsentry-install
+
+- name: Configure /etc/portsentry/portsentry.conf
+  template:
+    src: portsentry/portsentry.conf.j2
+    dest: /etc/portsentry/portsentry.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart portsentry
+  tags:
+    - configuration
+    - portsentry
+    - portsentry-configuration
+
+- name: Configure /etc/portsentry/portsentry.ignore.static
+  template:
+    src: portsentry/portsentry.ignore.static.j2
+    dest: /etc/portsentry/portsentry.ignore.static
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart portsentry
+  tags:
+    - configuration
+    - portsentry
+    - portsentry-configuration
+
+- name: Enable portsentry daemon
+  service:
+    name: portsentry
+    enabled: true
+  tags:
+    - configuration
+    - portsentry
+    - portsentry-configuration

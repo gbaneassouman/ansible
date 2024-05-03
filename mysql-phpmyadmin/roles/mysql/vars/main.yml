@@ -1,0 +1,12 @@
+---
+# vars file for roles/mysql
+mysql_user: root 
+mysql_password: 
+staging_db_user: 
+staging_db_pass: 
+staging_db_name: 
+remote_host: 
+prod_db_user: 
+prod_db_pass: 
+prod_db_name: 
+phpmyadmin: 

@@ -1,0 +1,93 @@
+---
+# tasks file for roles/mysql
+- name: Update system
+  apt: 
+    update_cache: yes 
+    force_apt_get: yes 
+    cache_valid_time: 3600
+
+- name: Upgrade all packages
+  apt: 
+    name: "*"
+    state: latest
+
+- name: Install mysql
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items: 
+    - mysql-server
+    - mysql-client 
+    - python3-mysqldb
+    - libmysqlclient-dev
+
+- name: Start and enable mysql
+  service:
+    enabled: true
+    name: mysql
+    state: started
+
+- name: Ensure root user can only login from host
+  mysql_user:
+    login_password: "{{ mysql_password }}"
+    check_implicit_admin: yes
+    name: "{{ mysql_user }}"
+    host: "{{ item }}"
+    password: "{{ mysql_password }}"
+    state: present
+  with_items:
+    - localhost
+    - 127.0.0.1
+    - ::1
+    - "{{ remote_host }}"
+
+- name: Removes all anonymous user accounts
+  community.mysql.mysql_user:
+    name: ''
+    host_all: true
+    state: absent
+    login_password: "{{ mysql_password  }}"
+    login_unix_socket: /run/mysqld/mysqld.sock
+
+- name: Remove the SQL test database
+  mysql_db:
+    db: "test"
+    state: absent
+    login_password: "{{ mysql_password  }}"
+    login_unix_socket: /run/mysqld/mysqld.sock
+
+- name: Creating DB
+  mysql_db:
+    name: "{{ item }}"
+    state: present
+    login_user: "{{ mysql_user }}"
+    login_password: "{{ mysql_password }}"
+  with_items: 
+    - "{{ staging_db_name }}"
+    - "{{ prod_db_name }}"
+
+
+- name: Creating mysql staging user 
+  mysql_user:
+    login_user: "{{ mysql_user }}"
+    login_unix_socket: /run/mysqld/mysqld.sock
+    login_password: "{{ mysql_password }}"
+    name: "{{ staging_db_user }}"
+    password: "{{ staging_db_pass }}"
+    priv: "{{ staging_db_name }}.*:ALL"
+    host: '%'
+    state: present
+    
+- name: Creating mysql prod user 
+  mysql_user:
+    login_user: "{{ mysql_user }}"
+    login_unix_socket: /run/mysqld/mysqld.sock
+    login_password: "{{ mysql_password }}"
+    name: "{{ prod_db_user }}"
+    password: "{{ prod_db_pass }}"
+    priv: "{{ prod_db_name }}.*:ALL"
+    host: '%'
+    state: present
+    
+
+    

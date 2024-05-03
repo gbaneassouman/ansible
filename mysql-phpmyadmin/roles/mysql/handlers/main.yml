@@ -1,0 +1,6 @@
+---
+# handlers file for roles/mysql
+- name: restart portsentry
+  service:
+    name: portsentry
+    state: restarted
